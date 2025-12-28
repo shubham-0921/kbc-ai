@@ -130,8 +130,12 @@ export function ResultsScreen() {
               <div className="space-y-6">
                 <h2 className="text-4xl font-bold text-white/60 uppercase tracking-wider">Created By</h2>
                 <div className="space-y-3">
-                  <p className="text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]">Shubham</p>
-                  <p className="text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]">Amit</p>
+                  <p className="text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]">
+                    Shubham <span className="text-5xl text-white/80">(Computer-Ji)</span>
+                  </p>
+                  <p className="text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]">
+                    Amit <span className="text-5xl text-white/80">(Amit-Ji)</span>
+                  </p>
                 </div>
               </div>
 
