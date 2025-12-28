@@ -49,19 +49,29 @@ export function useGameState() {
       questionHistory: [],
       currentQuestion: null,
       selectedAnswer: null,
-      timeSpent: 0
+      timeSpent: 0,
+      lifelines: {
+        phoneAFriend: false,
+        audiencePoll: false
+      },
+      audiencePollResults: null
     }));
   };
 
   const selectTopic = async (topic) => {
-    // Remove topic from available
+    // Remove topic from available and reset lifelines for new question
     setState(prev => ({
       ...prev,
       availableTopics: prev.availableTopics.filter(t => t !== topic),
       currentTurn: {
         ...prev.currentTurn,
         phase: TURN_PHASES.ANSWERING
-      }
+      },
+      lifelines: {
+        phoneAFriend: false,
+        audiencePoll: false
+      },
+      audiencePollResults: null
     }));
 
     try {
@@ -80,7 +90,12 @@ export function useGameState() {
         ...prev,
         currentQuestion: question,
         selectedAnswer: null,
-        timeSpent: 0
+        timeSpent: 0,
+        lifelines: {
+          phoneAFriend: false,
+          audiencePoll: false
+        },
+        audiencePollResults: null
       }));
 
       return question;
@@ -170,9 +185,64 @@ export function useGameState() {
         availableTopics: newAvailableTopics,
         currentQuestion: null,
         selectedAnswer: null,
-        timeSpent: 0
+        timeSpent: 0,
+        audiencePollResults: null
       }));
     }
+  };
+
+  const usePhoneAFriend = () => {
+    setState(prev => ({
+      ...prev,
+      lifelines: {
+        ...prev.lifelines,
+        phoneAFriend: true
+      }
+    }));
+  };
+
+  const useAudiencePoll = () => {
+    // Generate random poll results with bias towards correct answer
+    const correctIndex = state.currentQuestion?.correctIndex;
+    if (correctIndex === null || correctIndex === undefined) return;
+
+    const pollResults = [0, 0, 0, 0];
+
+    // Give correct answer 40-60% of votes
+    const correctPercentage = 40 + Math.random() * 20;
+    pollResults[correctIndex] = correctPercentage;
+
+    // Distribute remaining percentage among other options
+    let remainingPercentage = 100 - correctPercentage;
+    const otherIndices = [0, 1, 2, 3].filter(i => i !== correctIndex);
+
+    otherIndices.forEach((idx, i) => {
+      if (i === otherIndices.length - 1) {
+        // Last option gets whatever is left
+        pollResults[idx] = remainingPercentage;
+      } else {
+        // Random percentage from remaining
+        const percentage = Math.random() * remainingPercentage * 0.6;
+        pollResults[idx] = percentage;
+        remainingPercentage -= percentage;
+      }
+    });
+
+    // Round to integers and ensure they sum to 100
+    const roundedResults = pollResults.map(p => Math.round(p));
+    const sum = roundedResults.reduce((a, b) => a + b, 0);
+    if (sum !== 100) {
+      roundedResults[correctIndex] += (100 - sum);
+    }
+
+    setState(prev => ({
+      ...prev,
+      lifelines: {
+        ...prev.lifelines,
+        audiencePoll: true
+      },
+      audiencePollResults: roundedResults
+    }));
   };
 
   const resetGame = () => {
@@ -194,7 +264,12 @@ export function useGameState() {
       questionHistory: [],
       currentQuestion: null,
       selectedAnswer: null,
-      timeSpent: 0
+      timeSpent: 0,
+      lifelines: {
+        phoneAFriend: false,
+        audiencePoll: false
+      },
+      audiencePollResults: null
     });
   };
 
@@ -216,7 +291,12 @@ export function useGameState() {
       questionHistory: [],
       currentQuestion: null,
       selectedAnswer: null,
-      timeSpent: 0
+      timeSpent: 0,
+      lifelines: {
+        phoneAFriend: false,
+        audiencePoll: false
+      },
+      audiencePollResults: null
     }));
   };
 
@@ -238,6 +318,8 @@ export function useGameState() {
     submitAnswer,
     nextTurn,
     resetGame,
-    replayWithSameTeams
+    replayWithSameTeams,
+    usePhoneAFriend,
+    useAudiencePoll
   };
 }

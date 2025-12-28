@@ -1,9 +1,18 @@
 import { useState } from 'react';
 import { Button } from '../common/Button';
+import { useGameSound } from '../../contexts/SoundContext';
 import { ANSWER_LABELS } from '../../utils/constants';
 
 export function AnswerOptions({ options, onSubmit, disabled = false }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const { play } = useGameSound();
+
+  const handleOptionClick = (index) => {
+    if (!disabled) {
+      play('lock'); // Play lock sound when option is clicked
+      setSelectedIndex(index);
+    }
+  };
 
   const handleSubmit = () => {
     if (selectedIndex !== null) {
@@ -18,7 +27,7 @@ export function AnswerOptions({ options, onSubmit, disabled = false }) {
         {options.map((option, index) => (
           <button
             key={index}
-            onClick={() => !disabled && setSelectedIndex(index)}
+            onClick={() => handleOptionClick(index)}
             disabled={disabled}
             className={`
               group relative p-6 rounded-lg text-left transition-all duration-300

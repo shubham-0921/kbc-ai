@@ -1,17 +1,38 @@
+import { useEffect, useState } from 'react';
 import { Button } from '../common/Button';
 import { useGameState } from '../../hooks/useGameState';
+import { useGameSound } from '../../contexts/SoundContext';
 import { GAME_PHASES } from '../../utils/constants';
 import { hasSavedGame, loadGameState } from '../../services/storageService';
 
 export function HomeScreen() {
   const { setGamePhase } = useGameState();
+  const { play, stop } = useGameSound();
   const hasResume = hasSavedGame();
+  const [audioStarted, setAudioStarted] = useState(false);
+
+  // Cleanup theme music on unmount
+  useEffect(() => {
+    return () => {
+      stop('theme');
+    };
+  }, [stop]);
+
+  // Handle first click to start audio
+  const handleFirstInteraction = () => {
+    if (!audioStarted) {
+      play('theme');
+      setAudioStarted(true);
+    }
+  };
 
   const handleNewGame = () => {
+    play('click');
     setGamePhase(GAME_PHASES.SETUP);
   };
 
   const handleResumeGame = () => {
+    play('click');
     const savedState = loadGameState();
     if (savedState) {
       setGamePhase(savedState.gamePhase);
@@ -19,7 +40,20 @@ export function HomeScreen() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden"
+      onClick={handleFirstInteraction}
+    >
+      {/* Sound indicator - shows until first click */}
+      {!audioStarted && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-40 bg-kbc-purple-light/90 border border-kbc-gold/50 px-4 py-2 rounded-full backdrop-blur-sm animate-pulse">
+          <p className="text-sm text-kbc-gold flex items-center gap-2">
+            <span className="text-lg">🔊</span>
+            Click anywhere to enable sound
+          </p>
+        </div>
+      )}
+
       {/* Spotlight effect */}
       <div className="absolute inset-0 bg-gradient-radial from-kbc-purple-light/30 via-transparent to-transparent pointer-events-none"></div>
 

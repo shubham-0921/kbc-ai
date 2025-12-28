@@ -1,13 +1,46 @@
+import { useEffect, useState } from 'react';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
+import { VideoPlayer } from '../common/VideoPlayer';
+import { useGameSound } from '../../contexts/SoundContext';
 import { ANSWER_LABELS } from '../../utils/constants';
 
 export function AnswerReveal({ question, selectedAnswer, onNext }) {
   const isCorrect = selectedAnswer === question.correctIndex;
   const timedOut = selectedAnswer === null;
+  const { play, stop } = useGameSound();
+  const [showVideo, setShowVideo] = useState(false);
+
+  // Show video for both correct and wrong answers
+  useEffect(() => {
+    // Show video for both correct and wrong answers
+    setShowVideo(true);
+
+    return () => {
+      stop('correct');
+      stop('wrong');
+    };
+  }, [isCorrect, stop]);
+
+  const handleCloseVideo = () => {
+    setShowVideo(false);
+  };
+
+  // Determine which video to show
+  const videoSrc = isCorrect ? '/sounds/correct.mp4' : '/sounds/wrong.mp4';
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <>
+      {/* Video Player for Correct/Wrong Answer */}
+      {showVideo && (
+        <VideoPlayer
+          videoSrc={videoSrc}
+          onClose={handleCloseVideo}
+          autoPlay={true}
+        />
+      )}
+
+      <div className="max-w-4xl mx-auto space-y-6">
       {/* Result Banner */}
       <Card className={`text-center ${isCorrect ? 'bg-green-50 border-4 border-green-500' : 'bg-red-50 border-4 border-red-500'}`}>
         <div className="text-6xl mb-2">
@@ -74,6 +107,7 @@ export function AnswerReveal({ question, selectedAnswer, onNext }) {
           Next Question →
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGameState } from '../../hooks/useGameState';
-import { useTimer } from '../../hooks/useTimer';
+import { useGameSound } from '../../contexts/SoundContext';
 import { TURN_PHASES } from '../../utils/constants';
 
 import { TeamIndicator } from '../game/TeamIndicator';
@@ -9,7 +9,7 @@ import { TopicSelector } from '../setup/TopicSelector';
 import { QuestionDisplay } from '../game/QuestionDisplay';
 import { AnswerOptions } from '../game/AnswerOptions';
 import { AnswerReveal } from '../game/AnswerReveal';
-import { Timer } from '../common/Timer';
+import { Lifelines } from '../game/Lifelines';
 
 export function GameScreen() {
   const {
@@ -20,39 +20,50 @@ export function GameScreen() {
     availableTopics,
     currentQuestion,
     selectedAnswer,
+    lifelines,
+    audiencePollResults,
     selectTopic,
     submitAnswer,
-    nextTurn
+    nextTurn,
+    usePhoneAFriend,
+    useAudiencePoll
   } = useGameState();
 
-  const timer = useTimer(
-    config.timerLength,
-    () => {
-      // Auto-submit with null answer on timeout
-      if (currentTurn.phase === TURN_PHASES.ANSWERING && selectedAnswer === null) {
-        handleAnswerSubmit(null);
-      }
-    },
-    false
-  );
+  const { play, playWithCallback, stop, stopAll } = useGameSound();
 
-  // Start timer when answering phase begins
+  // Play question bed music, then transition to suspense loop
   useEffect(() => {
     if (currentTurn.phase === TURN_PHASES.ANSWERING && currentQuestion) {
-      timer.restart(config.timerLength);
+      // Play question-bed once, then start suspense loop when it ends
+      playWithCallback('questionBed', () => {
+        // When question-bed ends, start suspense loop
+        play('suspense');
+      });
     } else {
-      timer.reset();
+      // Stop both sounds when leaving answering phase
+      stop('questionBed');
+      stop('suspense');
     }
-  }, [currentTurn.phase, currentQuestion]);
+
+    return () => {
+      stop('questionBed');
+      stop('suspense');
+    };
+  }, [currentTurn.phase, currentQuestion, play, playWithCallback, stop]);
+
+  // Cleanup: stop all sounds when leaving game screen
+  useEffect(() => {
+    return () => {
+      stopAll();
+    };
+  }, [stopAll]);
 
   const handleTopicSelect = async (topic) => {
     await selectTopic(topic);
   };
 
   const handleAnswerSubmit = (answerIndex) => {
-    timer.pause();
-    const timeSpent = config.timerLength - timer.timeLeft;
-    submitAnswer(answerIndex, timeSpent);
+    submitAnswer(answerIndex, 0); // No timer, so timeSpent is 0
   };
 
   const handleNext = () => {
@@ -89,14 +100,16 @@ export function GameScreen() {
           {/* Answering Phase */}
           {currentTurn.phase === TURN_PHASES.ANSWERING && currentQuestion && (
             <>
-              <div className="flex justify-center mb-6">
-                <Timer
-                  timeLeft={timer.timeLeft}
-                  duration={config.timerLength}
-                />
-              </div>
-
               <QuestionDisplay question={currentQuestion} />
+
+              {/* Lifelines */}
+              <Lifelines
+                lifelines={lifelines}
+                audiencePollResults={audiencePollResults}
+                onPhoneAFriend={usePhoneAFriend}
+                onAudiencePoll={useAudiencePoll}
+                currentQuestion={currentQuestion}
+              />
 
               <AnswerOptions
                 options={currentQuestion.options}

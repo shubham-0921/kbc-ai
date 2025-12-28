@@ -21,7 +21,12 @@ const initialState = {
   questionHistory: [],
   currentQuestion: null,
   selectedAnswer: null,
-  timeSpent: 0
+  timeSpent: 0,
+  lifelines: {
+    phoneAFriend: false,
+    audiencePoll: false
+  },
+  audiencePollResults: null
 };
 
 export function GameProvider({ children }) {

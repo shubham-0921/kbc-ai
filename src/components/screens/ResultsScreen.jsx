@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
+import { VideoPlayer } from '../common/VideoPlayer';
 import { useGameState } from '../../hooks/useGameState';
+import { useGameSound } from '../../contexts/SoundContext';
 
 export function ResultsScreen() {
   const { leaderboard, winner, resetGame, replayWithSameTeams, players } = useGameState();
-  const [showConfetti, setShowConfetti] = useState(true);
+  const { play, stop } = useGameSound();
+  const [showVideo, setShowVideo] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight
@@ -22,14 +26,32 @@ export function ResultsScreen() {
 
     window.addEventListener('resize', handleResize);
 
-    // Stop confetti after 10 seconds
-    const timer = setTimeout(() => setShowConfetti(false), 10000);
-
     return () => {
       window.removeEventListener('resize', handleResize);
-      clearTimeout(timer);
     };
   }, []);
+
+  // Play winner sound and show confetti after video is closed
+  useEffect(() => {
+    if (!showVideo) {
+      // Play winner sound
+      play('winner');
+      // Show confetti
+      setShowConfetti(true);
+
+      // Stop confetti after 10 seconds
+      const timer = setTimeout(() => setShowConfetti(false), 10000);
+
+      return () => {
+        clearTimeout(timer);
+        stop('winner');
+      };
+    }
+  }, [showVideo, play, stop]);
+
+  const handleCloseVideo = () => {
+    setShowVideo(false);
+  };
 
   const getTeamPlayers = (team) => {
     return players.filter(p => team.playerIds.includes(p.id));
@@ -41,7 +63,17 @@ export function ResultsScreen() {
   const isTie = winners.length > 1;
 
   return (
-    <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
+    <>
+      {/* Final Video */}
+      {showVideo && (
+        <VideoPlayer
+          videoSrc="/sounds/final.mp4"
+          onClose={handleCloseVideo}
+          autoPlay={true}
+        />
+      )}
+
+      <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
       {/* Confetti */}
       {showConfetti && (
         <Confetti
@@ -131,14 +163,20 @@ export function ResultsScreen() {
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row gap-4 justify-center">
           <Button
-            onClick={replayWithSameTeams}
+            onClick={() => {
+              play('click');
+              replayWithSameTeams();
+            }}
             variant="primary"
             className="text-2xl"
           >
             🔄 Play Again (Same Teams)
           </Button>
           <Button
-            onClick={resetGame}
+            onClick={() => {
+              play('click');
+              resetGame();
+            }}
             variant="secondary"
             className="text-2xl"
           >
@@ -146,6 +184,7 @@ export function ResultsScreen() {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
