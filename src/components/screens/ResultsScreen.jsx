@@ -8,9 +8,10 @@ import { useGameSound } from '../../contexts/SoundContext';
 
 export function ResultsScreen() {
   const { leaderboard, winner, resetGame, replayWithSameTeams, players } = useGameState();
-  const { play, stop } = useGameSound();
+  const { play, stop, stopAll } = useGameSound();
   const [showVideo, setShowVideo] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight
@@ -53,6 +54,17 @@ export function ResultsScreen() {
     setShowVideo(false);
   };
 
+  const handleFinishGame = () => {
+    stopAll(); // Stop all other sounds
+    play('kbcCredits');
+    setShowCredits(true);
+  };
+
+  const handleCloseCredits = () => {
+    stop('kbcCredits');
+    setShowCredits(false);
+  };
+
   const getTeamPlayers = (team) => {
     return players.filter(p => team.playerIds.includes(p.id));
   };
@@ -62,6 +74,172 @@ export function ResultsScreen() {
   const winners = leaderboard.filter(team => team.score === topScore);
   const isTie = winners.length > 1;
 
+  // Show credits page if credits are active
+  if (showCredits) {
+    return (
+      <>
+        {/* Final Video */}
+        {showVideo && (
+          <VideoPlayer
+            videoSrc="/sounds/final.mp4"
+            onClose={handleCloseVideo}
+            autoPlay={true}
+          />
+        )}
+
+        {/* Credits Page */}
+        <div className="min-h-screen bg-gradient-to-b from-kbc-purple via-kbc-purple-light to-kbc-purple overflow-hidden relative">
+          {/* Close Button */}
+          <button
+            onClick={handleCloseCredits}
+            className="fixed top-6 right-6 z-50 bg-kbc-gold hover:bg-kbc-gold-dark text-kbc-purple rounded-full p-4 transition-all duration-300 hover:scale-110 shadow-[0_0_30px_rgba(255,215,0,0.6)]"
+            aria-label="Close credits"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={3}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          {/* Scrolling Credits */}
+          <div className="credits-scroll relative z-10">
+            <div className="credits-content">
+            <div className="text-center space-y-16 py-20">
+              {/* Main Title */}
+              <div className="space-y-4 mb-32">
+                <div className="text-8xl animate-bounce-slow mb-8">🏆</div>
+                <h1 className="text-6xl md:text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_40px_rgba(255,215,0,0.6)]">
+                  KAUN BANEGA CROREPATI
+                </h1>
+                <p className="text-2xl text-kbc-gold/80 italic">
+                  "Computer ji, lock kiya jaye!"
+                </p>
+              </div>
+
+              {/* Created By */}
+              <div className="space-y-6">
+                <h2 className="text-4xl font-bold text-white/60 uppercase tracking-wider">Created By</h2>
+                <div className="space-y-3">
+                  <p className="text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]">Shubham</p>
+                  <p className="text-7xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]">Amit</p>
+                </div>
+              </div>
+
+              {/* Game Development */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">Game Development</h2>
+                <p className="text-5xl font-bold text-white">Shubham Singhal</p>
+                <p className="text-2xl text-white/70">Lead Developer</p>
+              </div>
+
+              {/* Game Design */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">Game Design</h2>
+                <p className="text-5xl font-bold text-white">Amit Mishra</p>
+                <p className="text-2xl text-white/70">Creative Director</p>
+              </div>
+
+              {/* AI Integration */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">AI Integration</h2>
+                <p className="text-4xl font-bold text-white">Anthropic Claude</p>
+                <p className="text-xl text-white/70">Question Generation Engine</p>
+              </div>
+
+              {/* Sound Design */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">Sound Design</h2>
+                <p className="text-4xl font-bold text-white">Shubham & Amit</p>
+                <p className="text-xl text-white/70">Audio Integration</p>
+              </div>
+
+              {/* UI/UX Design */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">UI/UX Design</h2>
+                <p className="text-4xl font-bold text-white">Shubham Singhal</p>
+                <p className="text-xl text-white/70">Interface Design</p>
+              </div>
+
+              {/* Testing */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">Quality Assurance</h2>
+                <p className="text-4xl font-bold text-white">Amit Mishra</p>
+                <p className="text-xl text-white/70">Game Testing</p>
+              </div>
+
+              {/* Special Thanks */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">Special Thanks</h2>
+                <p className="text-3xl text-white">Sony Pictures Networks India</p>
+                <p className="text-2xl text-white/70">For the inspiration</p>
+              </div>
+
+              {/* Technology */}
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/60 uppercase tracking-wider">Built With</h2>
+                <p className="text-3xl text-white">React • Vite • Tailwind CSS</p>
+                <p className="text-3xl text-white">Anthropic Claude API</p>
+              </div>
+
+              {/* Final Message */}
+              <div className="space-y-8 mt-32 mb-20">
+                <div className="text-6xl">🎮</div>
+                <h2 className="text-5xl font-display font-bold text-kbc-gold drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
+                  Thank You For Playing!
+                </h2>
+                <p className="text-2xl text-white/80">
+                  © 2025 • Made with ❤️ in India
+                </p>
+                <button
+                  onClick={handleCloseCredits}
+                  className="mt-12 px-16 py-5 bg-gradient-to-r from-kbc-gold to-kbc-gold-dark text-kbc-purple font-bold text-2xl rounded-lg border-2 border-yellow-400 hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,215,0,0.5)]"
+                >
+                  Back to Results
+                </button>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          {/* CSS for scrolling animation */}
+          <style>{`
+            .credits-scroll {
+              position: relative;
+              overflow: hidden;
+              height: 100vh;
+            }
+
+            .credits-content {
+              animation: scroll-up 90s linear infinite;
+              will-change: transform;
+              transform: translateZ(0);
+            }
+
+            @keyframes scroll-up {
+              0% {
+                transform: translateY(100vh);
+              }
+              100% {
+                transform: translateY(calc(-100% - 100vh));
+              }
+            }
+          `}</style>
+        </div>
+      </>
+    );
+  }
+
+  // Show results page
   return (
     <>
       {/* Final Video */}
@@ -181,6 +359,13 @@ export function ResultsScreen() {
             className="text-2xl"
           >
             🏠 New Game
+          </Button>
+          <Button
+            onClick={handleFinishGame}
+            variant="secondary"
+            className="text-2xl bg-gradient-to-r from-kbc-gold to-kbc-gold-dark text-kbc-purple border-2 border-kbc-gold-dark hover:scale-105"
+          >
+            ✨ Finish Game
           </Button>
         </div>
       </div>

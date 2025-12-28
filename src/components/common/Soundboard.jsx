@@ -8,6 +8,7 @@ const SOUND_FILES = [
   { name: 'Suspense', file: 'suspense.mp3', type: 'audio', icon: '⏰' },
   { name: 'Lock', file: 'lock.mp3', type: 'audio', icon: '🔒' },
   { name: 'Phone a Friend', file: 'phone_a_friend.mp3', type: 'audio', icon: '📞' },
+  { name: 'Credits Music', file: 'kbc_credits.mp3', type: 'audio', icon: '🎬' },
   { name: 'Winner', file: 'winner.mp3', type: 'audio', icon: '🏆' },
   { name: 'Correct Answer', file: 'correct.mp4', type: 'video', icon: '✅' },
   { name: 'Wrong Answer', file: 'wrong.mp4', type: 'video', icon: '❌' },

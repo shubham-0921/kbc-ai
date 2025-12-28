@@ -23,7 +23,8 @@ const LOCAL_SOUNDS_AVAILABLE = {
   wrong: false,          // ⚠️ Using placeholder (add wrong.mp3 to enable)
   winner: true,          // ✅ You have this file
   click: false,          // ⚠️ Using placeholder (add click.mp3 to enable)
-  phoneAFriend: true     // ✅ You have this file - Phone a friend sound
+  phoneAFriend: true,    // ✅ You have this file - Phone a friend sound
+  kbcCredits: true       // ✅ You have this file - Credits music
 };
 
 // Sound file paths
@@ -153,6 +154,18 @@ export const SOUNDS = {
     ),
     volume: 0.5,
     loop: false
+  },
+
+  // KBC Credits music
+  KBC_CREDITS: {
+    key: 'kbcCredits',
+    url: getUrl(
+      'kbcCredits',
+      'kbc_credits.mp3', // Local KBC credits music
+      'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3' // Placeholder
+    ),
+    volume: 0.4,
+    loop: true
   }
 };
 
