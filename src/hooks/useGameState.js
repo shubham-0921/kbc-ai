@@ -34,6 +34,11 @@ export function useGameState() {
   };
 
   const initializeGame = (players, teams, config) => {
+    // Select hot seat player for the first team
+    const firstTeam = teams[0];
+    const teamPlayers = players.filter(p => firstTeam.playerIds.includes(p.id));
+    const randomPlayer = teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
+
     setState(prev => ({
       ...prev,
       players,
@@ -55,35 +60,36 @@ export function useGameState() {
         audiencePoll: false
       },
       audiencePollResults: null,
-      hotSeatPlayer: null,
-      hotSeatHistory: {}
+      hotSeatPlayer: randomPlayer,
+      hotSeatHistory: {
+        [firstTeam.id]: [randomPlayer.id]
+      }
     }));
   };
 
-  const selectTopic = async (topic) => {
-    // Get all players from current team
-    const teamPlayers = state.players.filter(p => currentTeam.playerIds.includes(p.id));
+  // Helper function to select hot seat player for a team
+  const selectHotSeatPlayer = (team) => {
+    // Get all players from the team
+    const teamPlayers = state.players.filter(p => team.playerIds.includes(p.id));
 
     // Get players who haven't been called yet for this team
-    const calledPlayerIds = state.hotSeatHistory[currentTeam.id] || [];
+    const calledPlayerIds = state.hotSeatHistory[team.id] || [];
     let availablePlayers = teamPlayers.filter(p => !calledPlayerIds.includes(p.id));
 
     // If all players have been called, reset and use all players
+    let resetHistory = false;
     if (availablePlayers.length === 0) {
       availablePlayers = teamPlayers;
-      // Reset history for this team
-      setState(prev => ({
-        ...prev,
-        hotSeatHistory: {
-          ...prev.hotSeatHistory,
-          [currentTeam.id]: []
-        }
-      }));
+      resetHistory = true;
     }
 
     // Select random player from available (uncalled) players
     const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
 
+    return { randomPlayer, resetHistory };
+  };
+
+  const selectTopic = async (topic) => {
     // Remove topic from available and reset lifelines for new question
     setState(prev => ({
       ...prev,
@@ -96,12 +102,7 @@ export function useGameState() {
         phoneAFriend: false,
         audiencePoll: false
       },
-      audiencePollResults: null,
-      hotSeatPlayer: randomPlayer,
-      hotSeatHistory: {
-        ...prev.hotSeatHistory,
-        [currentTeam.id]: [...(prev.hotSeatHistory[currentTeam.id] || []), randomPlayer.id]
-      }
+      audiencePollResults: null
     }));
 
     try {
@@ -197,6 +198,10 @@ export function useGameState() {
     } else {
       // Move to next team
       const nextTeamIndex = (currentTeamIndex + 1) % state.teams.length;
+      const nextTeam = updatedTeams[nextTeamIndex];
+
+      // Select hot seat player for the next team
+      const { randomPlayer, resetHistory } = selectHotSeatPlayer(nextTeam);
 
       // Refresh topics if all used
       const newAvailableTopics = state.availableTopics.length === 0
@@ -217,7 +222,11 @@ export function useGameState() {
         selectedAnswer: null,
         timeSpent: 0,
         audiencePollResults: null,
-        hotSeatPlayer: null
+        hotSeatPlayer: randomPlayer,
+        hotSeatHistory: {
+          ...prev.hotSeatHistory,
+          [nextTeam.id]: resetHistory ? [randomPlayer.id] : [...(prev.hotSeatHistory[nextTeam.id] || []), randomPlayer.id]
+        }
       }));
     }
   };

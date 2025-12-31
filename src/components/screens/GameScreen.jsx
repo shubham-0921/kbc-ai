@@ -93,18 +93,20 @@ export function GameScreen() {
         <div className="space-y-6">
           {/* Topic Selection Phase */}
           {currentTurn.phase === TURN_PHASES.TOPIC_SELECTION && (
-            <TopicSelector
-              availableTopics={availableTopics}
-              onSelectTopic={handleTopicSelect}
-            />
+            <>
+              {/* Hot Seat Indicator */}
+              <HotSeatIndicator playerName={hotSeatPlayer?.name} />
+
+              <TopicSelector
+                availableTopics={availableTopics}
+                onSelectTopic={handleTopicSelect}
+              />
+            </>
           )}
 
           {/* Answering Phase */}
           {currentTurn.phase === TURN_PHASES.ANSWERING && currentQuestion && (
             <>
-              {/* Hot Seat Indicator */}
-              <HotSeatIndicator playerName={hotSeatPlayer?.name} />
-
               <QuestionDisplay question={currentQuestion} />
 
               {/* Lifelines */}
