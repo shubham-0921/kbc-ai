@@ -26,7 +26,8 @@ const initialState = {
     phoneAFriend: false,
     audiencePoll: false
   },
-  audiencePollResults: null
+  audiencePollResults: null,
+  hotSeatPlayer: null
 };
 
 export function GameProvider({ children }) {

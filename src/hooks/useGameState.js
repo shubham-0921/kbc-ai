@@ -54,11 +54,16 @@ export function useGameState() {
         phoneAFriend: false,
         audiencePoll: false
       },
-      audiencePollResults: null
+      audiencePollResults: null,
+      hotSeatPlayer: null
     }));
   };
 
   const selectTopic = async (topic) => {
+    // Get random player from current team
+    const teamPlayers = state.players.filter(p => currentTeam.playerIds.includes(p.id));
+    const randomPlayer = teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
+
     // Remove topic from available and reset lifelines for new question
     setState(prev => ({
       ...prev,
@@ -71,7 +76,8 @@ export function useGameState() {
         phoneAFriend: false,
         audiencePoll: false
       },
-      audiencePollResults: null
+      audiencePollResults: null,
+      hotSeatPlayer: randomPlayer
     }));
 
     try {
@@ -186,7 +192,8 @@ export function useGameState() {
         currentQuestion: null,
         selectedAnswer: null,
         timeSpent: 0,
-        audiencePollResults: null
+        audiencePollResults: null,
+        hotSeatPlayer: null
       }));
     }
   };
@@ -269,7 +276,8 @@ export function useGameState() {
         phoneAFriend: false,
         audiencePoll: false
       },
-      audiencePollResults: null
+      audiencePollResults: null,
+      hotSeatPlayer: null
     });
   };
 
@@ -296,7 +304,8 @@ export function useGameState() {
         phoneAFriend: false,
         audiencePoll: false
       },
-      audiencePollResults: null
+      audiencePollResults: null,
+      hotSeatPlayer: null
     }));
   };
 

@@ -22,6 +22,16 @@ export const TOPICS = [
   'Desi Slang & Regional Languages'
 ];
 
+// Indian food/snack names for teams
+export const TEAM_NAMES = [
+  'Aloo Tikki',
+  'Dahi Papdi',
+  'Samosa',
+  'Pani Puri',
+  'Vada Pav',
+  'Pakora'
+];
+
 // Team colors with Tailwind classes
 export const TEAM_COLORS = [
   {

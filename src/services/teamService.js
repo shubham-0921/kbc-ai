@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { TEAM_COLORS } from '../utils/constants';
+import { TEAM_COLORS, TEAM_NAMES } from '../utils/constants';
 
 /**
  * Shuffle array using Fisher-Yates algorithm
@@ -37,9 +37,10 @@ export function createTeams(players, numTeams) {
   const teams = [];
   for (let i = 0; i < numTeams; i++) {
     const colorScheme = TEAM_COLORS[i % TEAM_COLORS.length];
+    const teamName = TEAM_NAMES[i % TEAM_NAMES.length];
     teams.push({
       id: uuidv4(),
-      name: `Team ${colorScheme.name}`,
+      name: teamName,
       colorScheme: colorScheme,
       playerIds: [],
       score: 0,

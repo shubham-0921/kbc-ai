@@ -10,6 +10,7 @@ import { QuestionDisplay } from '../game/QuestionDisplay';
 import { AnswerOptions } from '../game/AnswerOptions';
 import { AnswerReveal } from '../game/AnswerReveal';
 import { Lifelines } from '../game/Lifelines';
+import { HotSeatIndicator } from '../game/HotSeatIndicator';
 
 export function GameScreen() {
   const {
@@ -22,6 +23,7 @@ export function GameScreen() {
     selectedAnswer,
     lifelines,
     audiencePollResults,
+    hotSeatPlayer,
     selectTopic,
     submitAnswer,
     nextTurn,
@@ -100,6 +102,9 @@ export function GameScreen() {
           {/* Answering Phase */}
           {currentTurn.phase === TURN_PHASES.ANSWERING && currentQuestion && (
             <>
+              {/* Hot Seat Indicator */}
+              <HotSeatIndicator playerName={hotSeatPlayer?.name} />
+
               <QuestionDisplay question={currentQuestion} />
 
               {/* Lifelines */}
