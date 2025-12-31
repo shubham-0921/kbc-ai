@@ -27,7 +27,8 @@ const initialState = {
     audiencePoll: false
   },
   audiencePollResults: null,
-  hotSeatPlayer: null
+  hotSeatPlayer: null,
+  hotSeatHistory: {} // Track which players have been called per team
 };
 
 export function GameProvider({ children }) {

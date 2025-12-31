@@ -55,14 +55,34 @@ export function useGameState() {
         audiencePoll: false
       },
       audiencePollResults: null,
-      hotSeatPlayer: null
+      hotSeatPlayer: null,
+      hotSeatHistory: {}
     }));
   };
 
   const selectTopic = async (topic) => {
-    // Get random player from current team
+    // Get all players from current team
     const teamPlayers = state.players.filter(p => currentTeam.playerIds.includes(p.id));
-    const randomPlayer = teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
+
+    // Get players who haven't been called yet for this team
+    const calledPlayerIds = state.hotSeatHistory[currentTeam.id] || [];
+    let availablePlayers = teamPlayers.filter(p => !calledPlayerIds.includes(p.id));
+
+    // If all players have been called, reset and use all players
+    if (availablePlayers.length === 0) {
+      availablePlayers = teamPlayers;
+      // Reset history for this team
+      setState(prev => ({
+        ...prev,
+        hotSeatHistory: {
+          ...prev.hotSeatHistory,
+          [currentTeam.id]: []
+        }
+      }));
+    }
+
+    // Select random player from available (uncalled) players
+    const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
 
     // Remove topic from available and reset lifelines for new question
     setState(prev => ({
@@ -77,7 +97,11 @@ export function useGameState() {
         audiencePoll: false
       },
       audiencePollResults: null,
-      hotSeatPlayer: randomPlayer
+      hotSeatPlayer: randomPlayer,
+      hotSeatHistory: {
+        ...prev.hotSeatHistory,
+        [currentTeam.id]: [...(prev.hotSeatHistory[currentTeam.id] || []), randomPlayer.id]
+      }
     }));
 
     try {
@@ -277,7 +301,8 @@ export function useGameState() {
         audiencePoll: false
       },
       audiencePollResults: null,
-      hotSeatPlayer: null
+      hotSeatPlayer: null,
+      hotSeatHistory: {}
     });
   };
 
@@ -305,7 +330,8 @@ export function useGameState() {
         audiencePoll: false
       },
       audiencePollResults: null,
-      hotSeatPlayer: null
+      hotSeatPlayer: null,
+      hotSeatHistory: {}
     }));
   };
 
